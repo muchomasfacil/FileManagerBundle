@@ -1,0 +1,75 @@
+    <p>{{ 'To upload a file, click on the button below. Drag-and-drop is supported in FF, Chrome.' | trans({}, (bundle_name | lower)) }}</p>
+	<p>{{ 'Progress-bar is supported in FF3.6+, Chrome6+, Safari4+' | trans({}, (bundle_name | lower)) }}</p>
+
+	<div id="mmf-fm-file-uploader">
+		<noscript>
+			<p>{{ 'Please enable JavaScript to use file uploader.' | trans({}, (bundle_name | lower)) }}</p>
+		</noscript>
+	</div>
+
+{% set allowedExtensions = '' %}
+{% if params['allowedExtensions'] %}
+    {% for key, extension in params['allowedExtensions'] %}
+        {% if key != 0 %}
+            {% set allowedExtensions = allowedExtensions ~ ","  %}
+        {% endif %}
+        {% set allowedExtensions = allowedExtensions ~ "'" ~ extension ~ "'"  %}
+    {% endfor %}
+{% endif %}
+
+<script type="text/javascript">
+//<![CDATA[
+
+
+
+
+$(document).ready(function(){
+
+    var uploader = new qq.FileUploader({
+            element: $('#mmf-fm-file-uploader')[0],
+            action: '{{ path( 'mmf_fm_upload') }}',
+            params: {
+                'url_safe_encoded_params': '{{ url_safe_encoded_params }}'
+            },
+            messages: {
+                typeError: "{{ "{file} has invalid extension. Only {extensions} are allowed." | trans({}, (bundle_name | lower)) }}",
+                sizeError: "{{ "{file} is too large, maximum file size is {sizeLimit}." | trans({}, (bundle_name | lower)) }}",
+                minSizeError: "{{ "{file} is too small, minimum file size is {minSizeLimit}." | trans({}, (bundle_name | lower)) }}",
+                emptyError: "{{ "{file} is empty, please select files again without it." | trans({}, (bundle_name | lower)) }}",
+                onLeave: "{{ "The files are being uploaded, if you leave now the upload will be cancelled." | trans({}, (bundle_name | lower)) }}"
+            },
+            onComplete: function(id, fileName, responseJSON){
+                if (uploader.getInProgress() == 0){
+                    customJqueryAjaxLoad('mmf-fm-list-tab','{{ path( 'mmf_fm_list', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
+                }
+            },
+            template: '<div class="qq-uploader">' +
+                '<div class="qq-upload-drop-area"><span>{{ "Drop files here to upload" | trans({}, (bundle_name | lower)) }}</span></div>' +
+                '<div class="qq-upload-button">{{ "Files" | trans({}, (bundle_name | lower)) }}</div>' +
+                '<ul class="qq-upload-list"></ul>' +
+             '</div>',
+
+            // template for one item in file list
+            fileTemplate: '<li>' +
+                '<span class="qq-upload-file"></span>' +
+                '<span class="qq-upload-spinner"></span>' +
+                '<span class="qq-upload-size"></span>' +
+                '<a class="qq-upload-cancel" href="#">{{ "Cancel" | trans({}, (bundle_name | lower)) }}</a>' +
+                '<span class="qq-upload-failed-text">{{ "Failed" | trans({}, (bundle_name | lower)) }}</span>' +
+            '</li>',
+
+{% if allowedExtensions != '' %}            allowedExtensions: [{{ allowedExtensions | raw }}],
+{% endif %}
+{% if params['sizeLimit'] %}            sizeLimit: {{ params['sizeLimit'] }},
+{% endif %}
+{% if params['minSizeLimit'] %}            minSizeLimit:  {{ params['minSizeLimit'] }},
+{% endif %}
+{% if params['maxConnections'] %}            maxConnections: {{ params['maxConnections'] }},
+{% endif %}
+            debug: false
+        });
+
+});//closes $(document).ready ...
+
+//]]>
+</script>

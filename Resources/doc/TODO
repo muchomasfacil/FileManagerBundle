@@ -1,0 +1,35 @@
+TODO for the  FileManagerBundle
+=========================================
+- Securing: ajax actions
+- form styling
+- un helper gist que meta todos los js y css necesarios...
+- pueden ser útiles:
+     http://leocaseiro.com.br/jquery-plugin-string-to-slug/
+     jalert
+     jcrop o similar para recortar imágenes...
+    https://github.com/blueimp/jQuery-File-Upload
+    http://cmlenz.github.com/jquery-iframe-transport/
+
+Comand line utils
+-----------------
+
+TODO concretos
+--------------
+posibilidad de renombrar ficheros.
+multiple delete
+mensajes de error del borrado de ficheros
+preview de archivos
+cambiar tabs por dialog bottoms
+possible_param en default index deben ser configurables
+
+
+Js and css requisites
+---------------------
+- jquery
+- jqueryui con dialog...
+- jquery-ui-fix-4727.js para arreglar los problemas con los inputs de los dialogs del ckeditor (quedará arreglado en la próxima version de jqueryui??)
+- jquery theme
+- jquery.blockUI.js
+
+Voy por
+-------

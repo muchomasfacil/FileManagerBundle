@@ -1,0 +1,7 @@
+parameters:
+#    mucho_mas_facil_file_manager.example.class: MuchoMasFacil\FileManagerBundle\Example
+
+services:
+#    mucho_mas_facil_file_manager.example:
+#        class: %mucho_mas_facil_file_manager.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

@@ -1,0 +1,53 @@
+{% if count_files <= 0 %}
+
+<div class="div-highlight ui-state-highlight ui-corner-all" style="padding: .1em; margin-bottom: 10px">
+    <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+    {{ 'No files found' | trans({}, (bundle_name | lower)) }}
+</div>
+
+{% else %}
+
+  <ul id="ul-sortable" style="list-style: none; margin: 0px; padding: 0px">
+{% for file in files %}
+
+    <li class="ui-state-default" style="padding: .2em; margin: 5px 0px">
+        <a title="{{ 'Delete this entry' | trans({}, (bundle_name | lower)) }}" class="iew-button-delete" href="javascript:void(0)" onclick="if (confirm('{{ 'Are you sure?' | trans({}, (bundle_name | lower)) }}')) customJqueryAjaxLoad('mmf-fm-list-tab', '{{ path( 'mmf_fm_delete', { 'url_safe_encoded_params': url_safe_encoded_params, 'url_safe_encoded_files_to_delete': url_safe_encoder.encode([file.getBaseName()]) }) }}')">{{ 'Delete' | trans({}, (bundle_name | lower)) }}</a>
+{% if (params['onSelectFunctionJsActions'] is defined) or (params['CKEditorFuncNum'] is defined) %}
+        <a title="{{ 'Select this entry' | trans({}, (bundle_name | lower)) }}" class="iew-button-select" href="javascript:void(0)" onclick="onSelect('{{ file.getBaseName() }}', '{{ path_after_upload_absolute_path }}')">{{ 'Select' | trans({}, (bundle_name | lower)) }}</a>
+{% endif %}
+        <!--<a title="{{ 'Rename this file' | trans({}, (bundle_name | lower)) }}" class="iew-button-rename" href="javascript:void(0)">{{ 'Rename' | trans({}, (bundle_name | lower)) }}</a>-->
+        &nbsp;
+        <a href="javascript:void(0)">{{ file.getMTime() | date }} -- {{ file.getSize() }} -- {{ file.getBaseName() }}</a>
+    </li>
+{% endfor %}
+</ul>
+
+{% endif %}
+
+<script type="text/javascript">
+//<![CDATA[
+
+
+function onSelect(file_name, path_after_upload_absolute_path)
+{
+
+{% if params['onSelectFunctionJsActions'] is defined %}
+  {{ params['onSelectFunctionJsActions'] | raw}}
+{% endif %}
+
+{% if params['CKEditorFuncNum'] is defined %}
+    // in general ...window.opener.CKEDITOR.tools.callFunction( funcNum, fileUrl [, data] );
+    window.opener.CKEDITOR.tools.callFunction( '{{ params['CKEditorFuncNum'] }}', path_after_upload_absolute_path + file_name );
+{% endif %}
+
+}
+
+
+$(document).ready(function(){
+
+$( ".iew-button-select").button({ text: false, icons: { primary: "ui-icon-check" } });
+$( ".iew-button-delete").button({ text: false, icons: { primary: "ui-icon-trash" } });
+
+});//document.ready
+//]]>
+</script>

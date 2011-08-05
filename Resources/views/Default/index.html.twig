@@ -1,0 +1,22 @@
+<div id="mmf-fm-tabs">
+	<ul>
+		<li><a href="#mmf-fm-list-tab">{{ 'List files' | trans({}, (bundle_name | lower)) }}</a></li>
+		<li><a href="#mmf-fm-upload-tab">{{ 'Upload files' | trans({}, (bundle_name | lower)) }}</a></li>
+	</ul>
+	<div id="mmf-fm-list-tab">
+		{% render "MuchoMasFacilFileManagerBundle:Default:list" with {'url_safe_encoded_params': url_safe_encoded_params}  %}
+	</div>
+	<div id="mmf-fm-upload-tab">
+		{% render "MuchoMasFacilFileManagerBundle:Default:uploadForm" with {'url_safe_encoded_params': url_safe_encoded_params}  %}
+	</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function(){
+
+	$( "#mmf-fm-tabs" ).tabs();
+
+});//document.ready
+//]]>
+</script>

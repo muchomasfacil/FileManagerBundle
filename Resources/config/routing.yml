@@ -1,0 +1,21 @@
+#uncomment this route to access the FileManagerBundle demo
+mmf_fm_demo:
+    pattern:  /mmf_fm_demo
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Demo:index }
+
+mmf_fm:
+    pattern:  /mmf_fm/{url_safe_encoded_params}
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:index }
+mmf_fm_upload:
+    pattern:  /mmf_fm_upload
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:upload }
+mmf_fm_upload_form:
+    pattern:  /mmf_fm_upload_form/{url_safe_encoded_params}
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:uploadForm }
+mmf_fm_list:
+    pattern:  /mmf_fm_list/{url_safe_encoded_params}
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:list}
+mmf_fm_delete:
+    pattern:  /mmf_fm_delete/{url_safe_encoded_params}/{url_safe_encoded_files_to_delete}
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:delete}
+
