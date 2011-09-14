@@ -11,42 +11,48 @@ use MuchoMasFacil\FileManagerBundle\Util\qqUploadedFileForm;
 
 class DefaultController extends Controller
 {
+    private $render_vars = array();
 
-    private $render_vars = array(
-        'bundle_name' => 'MuchoMasFacilFileManagerBundle',
-        'controller_name' => 'Default',
-        'params' => array(),
-        );
     private $url_safe_encoder;
 
     function __construct()
     {
-      //read default params from ini or yml...
+        $this->url_safe_encoder =  new CustomUrlSafeEncoder();
+        $this->render_vars['bundle_name'] = 'MuchoMasFacilFileManagerBundle';
+        $this->render_vars['controller_name'] = str_replace('Controller', '', str_replace(__NAMESPACE__.'\\', '', __CLASS__));
         $this->render_vars['params'] = array(
             'uploadAbsolutePath' => $_SERVER['DOCUMENT_ROOT'].'/uploads/', //substitute first part from ini_configuration
             'createPathIfNotExist' => true,
             'replaceOldFile' => false,
             'maxNumberOfFiles' => null, //any number of files
-            'thumnails' => null,
+            //'thumnails' => null, use AvalancheImagineBundle instead
             //possible select params
-            //'onSelectFunctionJsActions' => null,
+            'onSelectCallbackFunction' => null,
             //'CKEditorFuncNum' => null,
             //'CKEditor' => null,
             //'langCode' => null,
             'onSelectRemoveFromUploadAbsolutePath' => $_SERVER['DOCUMENT_ROOT'],
+            'allowedRoles' => array('ROLE_USER', 'ROLE_ADMIN'),
             //now for the specific upload plugin (may be used by the server side also)
             'allowedExtensions' => null, //any extension
             'sizeLimit' => 200 * 1024,
             'minSizeLimit' => null,
             'maxConnections' => 3,
             );
-        $this->url_safe_encoder =  new CustomUrlSafeEncoder();
+    }
+
+    private function getTemplateNameByDefaults($action_name, $template_format = 'html')
+    {
+      $this->render_vars['action_name'] = str_replace('Action', '', $action_name);
+      return $this->render_vars['bundle_name'] . ':' . $this->render_vars['controller_name'] . ':' . $this->render_vars['action_name'] . '.'.$template_format.'.twig';
     }
 
     private function trans($translatable, $params = array())
     {
       return $this->get('translator')->trans($translatable, $params, strtolower($this->render_vars['bundle_name']));
     }
+//------------------------------------------------------------------------------
+// From now on action classes
 
     public function indexAction($url_safe_encoded_params)
     {
@@ -63,7 +69,7 @@ class DefaultController extends Controller
         }
 
         $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
-        return $this->render($this->render_vars['bundle_name'] . ':' . $this->render_vars['controller_name'] . ':' . 'index.html.twig', $this->render_vars);
+        return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
 
     public function uploadFormAction($url_safe_encoded_params)
@@ -71,7 +77,7 @@ class DefaultController extends Controller
 
         $this->render_vars['params'] = array_replace_recursive($this->render_vars['params'], $this->url_safe_encoder->decode($url_safe_encoded_params));
         $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
-        return $this->render($this->render_vars['bundle_name'] . ':' . $this->render_vars['controller_name'] . ':' . 'uploadForm.html.twig', $this->render_vars);
+        return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
 
 
@@ -180,7 +186,7 @@ class DefaultController extends Controller
         $this->render_vars['count_files'] = iterator_count($this->render_vars['files']);
         $this->render_vars['url_safe_encoder'] = $this->url_safe_encoder;
         $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
-        return $this->render($this->render_vars['bundle_name'] . ':' . $this->render_vars['controller_name'] . ':' . 'list.html.twig', $this->render_vars);
+        return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
 
     public function deleteAction($url_safe_encoded_params, $url_safe_encoded_files_to_delete)

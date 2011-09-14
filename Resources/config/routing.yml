@@ -3,6 +3,10 @@ mmf_fm_demo:
     pattern:  /mmf_fm_demo
     defaults: { _controller: MuchoMasFacilFileManagerBundle:Demo:index }
 
+mmf_fm_static:
+    pattern:  /mmf_fm_static/{template}.{_format}
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Static:render}
+
 mmf_fm:
     pattern:  /mmf_fm/{url_safe_encoded_params}
     defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:index }

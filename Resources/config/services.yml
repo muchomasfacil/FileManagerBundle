@@ -1,7 +1,24 @@
 parameters:
-#    mucho_mas_facil_file_manager.example.class: MuchoMasFacil\FileManagerBundle\Example
+    uploadAbsolutePath: /uploads/ #concatenar kernel.rootdir
+    createPathIfNotExist:  true
+    replaceOldFile:  false
+    maxNumberOfFiles:  null #any number of files
+    onSelectCallbackFunction:  null
+    onSelectRemoveFromUploadAbsolutePath: /  #concatenar kernel.rootdir
+    allowedRoles:  ['ROLE_USER', 'ROLE_ADMIN']
+    #now for the specific upload plugin (may be used by the server side also)
+    allowedExtensions:  null #null means any extension
+    sizeLimit:  200 * 1024
+    minSizeLimit:  null
+    maxConnections:  3
+    #thumnails:  null use AvalancheImagineBundle instead
+    #CKEditorFuncNum:  null
+    #CKEditor:  null
+    #langCode:  null
+
 
 services:
 #    mucho_mas_facil_file_manager.example:
 #        class: %mucho_mas_facil_file_manager.example.class%
 #        arguments: [@service_id, "plain_value", %parameter%]
+

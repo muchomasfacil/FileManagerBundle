@@ -3,58 +3,27 @@
 {% block body %}
 
 <form>
-<input type="text" id="input_name">
 {{ 'Double click text input to enter file manager' | trans({}, (bundle_name | lower)) }}
+<input type="text" id="input_name_1" class="mmf-fm">
+
+<br />
+
+{{ 'Double click text input to enter file manager' | trans({}, (bundle_name | lower)) }}
+<input type="text" id="input_name_2" class="mmf-fm">
+
 </form>
 
 <script type="text/javascript">
 //<![CDATA[
-function customJqueryAjaxLoad(container_id, url, data)
-{
-    $('#' + container_id).block({
-            message: '<p>{{ 'Loading' | trans({}, (bundle_name | lower)) }}...</p>',
-            css: { /*backgroundColor: '#f00', color: '#fff',*/ font: '10px bold Arial, Helvetica, sans-serif' }
-    });
-    $('#' + container_id).load( url, data, function(responseText, textStatus, XMLHttpRequest) {
-        if (textStatus == "error") {
-            alert('{{ 'Error making an Ajax call' |  trans({}, (bundle_name | lower)) }}'+ ': '+ XMLHttpRequest.status + " " + XMLHttpRequest.statusText);
-        }
-    });
-    $('#' + container_id).unblock()
-}
-
 $(document).ready(function(){
-    var $mmf_fm_dialog = $('<div id="mmf-fm-dialog"></div>')
-  		.dialog({
-	  		autoOpen: false,
-        width: Math.min(800,$(window).width()*80/100),
-        height: Math.min(600,$(window).height()*70/100),
-        modal: true,
-        close: function() { $mmf_fm_dialog.html(''); }
-	  	});
 
-      $('#input_name').dblclick(function(){
-            $mmf_fm_dialog.dialog({
-		            title: '{{ 'File manager' | trans({}, (bundle_name | lower)) }}',
-                open: function (){
-                  customJqueryAjaxLoad($mmf_fm_dialog.attr('id'),'{{ path( 'mmf_fm', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
-                }
-            });//closes dialog
+    var $mmf_fm_container = $('<div id="mmf-fm-dialog"></div>');
 
-            $mmf_fm_dialog.dialog('open');
-
-        });//closes dblclick
-
-        /*$('#').css({'border-top' : '1px dashed black', 'border-bottom' : '1px dashed black',  'min-width': '50px',  'min-height': '20px', 'cursor': 'crosshair' });
-
-        $('#').hover(
-            function () {
-              $(this).css({'border-top' : '1px solid black', 'border-bottom' : '1px solid black' });
-            },
-            function () {
-              $(this).css({'border-top' : '1px dashed black', 'border-bottom' : '1px dashed black' });
-            }
-        );*/
+    $('.mmf-fm').dblclick(function(){
+        //$mmf_fm_container.remove();
+        $(this).after($mmf_fm_container);
+        mmf_fm_load($mmf_fm_container.attr('id'),'{{ path( 'mmf_fm', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
+        });
 
 });//closes $(document).ready ...
 //]]>

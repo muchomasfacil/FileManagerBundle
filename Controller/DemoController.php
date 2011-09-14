@@ -5,6 +5,8 @@ namespace MuchoMasFacil\FileManagerBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use MuchoMasFacil\FileManagerBundle\Util\CustomUrlSafeEncoder;
 
+use Symfony\Component\DependencyInjection\ContainerAware;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DemoController extends Controller
 {
@@ -16,6 +18,7 @@ class DemoController extends Controller
 
     public function indexAction()
     {
+        die($this->container->getParameter('kernel.root_dir'));
         $url_safe_encoder = new CustomUrlSafeEncoder();
         $file_manager_params = array(
             'maxNumberOfFiles' => 10,

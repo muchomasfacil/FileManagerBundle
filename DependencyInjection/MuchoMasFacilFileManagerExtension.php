@@ -24,5 +24,13 @@ class MuchoMasFacilFileManagerExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+
+die(print_r($loader->import('uploadAbsolutePath')));
+//die(print_r(get_class_methods($loader)));
+
+        $container->setParameter('mucho_mas_facil_file_manager.upload_absolute_path', $config['upload_absolute_path']);
+
+
     }
 }
+
