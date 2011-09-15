@@ -27,8 +27,8 @@ class DemoController extends Controller
             'allowed_extensions' => "'jpeg', 'jpg', 'gif', 'png'",
             'on_select_callback_function' => //will receive two params: file_name, upload_path_after_root_dir, input_container
                 "
-                    $('#input_name').val(path_after_upload_absolute_path + file_name);
-                    $('#mmf-fm-dialog').dialog('close');
+                    $('#input_name').val(upload_path_after_document_root + file_name);
+                    //$('#mmf-fm-dialog').dialog('close');
                 ",
             );
 
