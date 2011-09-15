@@ -7,15 +7,6 @@
 		</noscript>
 	</div>
 
-{% set allowedExtensions = '' %}
-{% if params['allowedExtensions'] %}
-    {% for key, extension in params['allowedExtensions'] %}
-        {% if key != 0 %}
-            {% set allowedExtensions = allowedExtensions ~ ","  %}
-        {% endif %}
-        {% set allowedExtensions = allowedExtensions ~ "'" ~ extension ~ "'"  %}
-    {% endfor %}
-{% endif %}
 
 <script type="text/javascript">
 //<![CDATA[
@@ -40,7 +31,7 @@ $(document).ready(function(){
             },
             onComplete: function(id, fileName, responseJSON){
                 if (uploader.getInProgress() == 0){
-                    customJqueryAjaxLoad('mmf-fm-list-tab','{{ path( 'mmf_fm_list', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
+                    mmf_fm_load('mmf-fm-list-tab','{{ path( 'mmf_fm_list', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
                 }
             },
             template: '<div class="qq-uploader">' +
@@ -58,13 +49,13 @@ $(document).ready(function(){
                 '<span class="qq-upload-failed-text">{{ "Failed" | trans({}, (bundle_name | lower)) }}</span>' +
             '</li>',
 
-{% if allowedExtensions != '' %}            allowedExtensions: [{{ allowedExtensions | raw }}],
+{% if params['allowed_extensions'] %}            allowedExtensions: [{{ params['allowed_extensions'] | raw }}],
 {% endif %}
-{% if params['sizeLimit'] %}            sizeLimit: {{ params['sizeLimit'] }},
+{% if params['size_limit'] %}            sizeLimit: {{ params['size_limit'] }},
 {% endif %}
-{% if params['minSizeLimit'] %}            minSizeLimit:  {{ params['minSizeLimit'] }},
+{% if params['min_size_limit'] %}            minSizeLimit:  {{ params['min_size_limit'] }},
 {% endif %}
-{% if params['maxConnections'] %}            maxConnections: {{ params['maxConnections'] }},
+{% if params['max_connections'] %}            maxConnections: {{ params['max_connections'] }},
 {% endif %}
             debug: false
         });

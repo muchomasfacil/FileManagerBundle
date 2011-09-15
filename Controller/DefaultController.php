@@ -3,11 +3,16 @@
 namespace MuchoMasFacil\FileManagerBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Finder\Finder;
 use MuchoMasFacil\FileManagerBundle\Util\CustomUrlSafeEncoder;
 use MuchoMasFacil\FileManagerBundle\Util\qqUploadedFileXhr;
 use MuchoMasFacil\FileManagerBundle\Util\qqUploadedFileForm;
+
+use Symfony\Component\DependencyInjection\ContainerAware;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 
 class DefaultController extends Controller
 {
@@ -15,30 +20,15 @@ class DefaultController extends Controller
 
     private $url_safe_encoder;
 
+    private $document_root;
+
     function __construct()
     {
+        $this->document_root = $_SERVER['DOCUMENT_ROOT'];
         $this->url_safe_encoder =  new CustomUrlSafeEncoder();
         $this->render_vars['bundle_name'] = 'MuchoMasFacilFileManagerBundle';
         $this->render_vars['controller_name'] = str_replace('Controller', '', str_replace(__NAMESPACE__.'\\', '', __CLASS__));
-        $this->render_vars['params'] = array(
-            'uploadAbsolutePath' => $_SERVER['DOCUMENT_ROOT'].'/uploads/', //substitute first part from ini_configuration
-            'createPathIfNotExist' => true,
-            'replaceOldFile' => false,
-            'maxNumberOfFiles' => null, //any number of files
-            //'thumnails' => null, use AvalancheImagineBundle instead
-            //possible select params
-            'onSelectCallbackFunction' => null,
-            //'CKEditorFuncNum' => null,
-            //'CKEditor' => null,
-            //'langCode' => null,
-            'onSelectRemoveFromUploadAbsolutePath' => $_SERVER['DOCUMENT_ROOT'],
-            'allowedRoles' => array('ROLE_USER', 'ROLE_ADMIN'),
-            //now for the specific upload plugin (may be used by the server side also)
-            'allowedExtensions' => null, //any extension
-            'sizeLimit' => 200 * 1024,
-            'minSizeLimit' => null,
-            'maxConnections' => 3,
-            );
+        $this->render_vars['params'] = array();
     }
 
     private function getTemplateNameByDefaults($action_name, $template_format = 'html')
@@ -54,9 +44,22 @@ class DefaultController extends Controller
 //------------------------------------------------------------------------------
 // From now on action classes
 
+    private function initialiceParams($url_safe_encoded_params)
+    {
+        $custom_params = $this->url_safe_encoder->decode($url_safe_encoded_params);
+        $options = $this->container->getParameter('mucho_mas_facil_file_manager.options');
+        $params = $options['default'];
+
+        if ((isset($custom_params['load_options'])) && (isset($options[$custom_params['load_options']]))) {
+            $params = array_merge($params, $options[$custom_params['load_options']]);
+        }
+        return array_replace_recursive($params, $custom_params);
+    }
+
     public function indexAction($url_safe_encoded_params)
     {
-        $params = array_replace_recursive($this->render_vars['params'], $this->url_safe_encoder->decode($url_safe_encoded_params));
+        $params = $this->url_safe_encoder->decode($url_safe_encoded_params);
+
         // TODO estos parametros deberían ser configurables...
         foreach ( array('CKEditorFuncNum', 'CKEditor', 'langCode' ) as $possible_param){
             if ($this->getRequest()->get($possible_param)){
@@ -74,8 +77,7 @@ class DefaultController extends Controller
 
     public function uploadFormAction($url_safe_encoded_params)
     {
-
-        $this->render_vars['params'] = array_replace_recursive($this->render_vars['params'], $this->url_safe_encoder->decode($url_safe_encoded_params));
+        $this->render_vars['params'] = $this->initialiceParams($url_safe_encoded_params);
         $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
@@ -91,9 +93,9 @@ class DefaultController extends Controller
     public function uploadAction()
     {
         $url_safe_encoded_params = $this->getRequest()->get('url_safe_encoded_params');
-        $params = array_replace_recursive($this->render_vars['params'], $this->url_safe_encoder->decode($url_safe_encoded_params));
+        $params = $this->initialiceParams($url_safe_encoded_params);
 
-        if (!is_writable($params['uploadAbsolutePath'])){
+        if (!is_writable($this->document_root . $params['upload_path_after_document_root'])){
             return $this->uploadReturn(array('error' => $this->trans("Server error. Upload directory is not writable.")));
             // TODO: tema de createPathIfNotExist
         }
@@ -120,7 +122,7 @@ class DefaultController extends Controller
 
         // TODO : tema de minSizeLimit
 
-        if ($size > $params['sizeLimit']) {
+        if ($size > $params['size_limit']) {
             return $this->uploadReturn(array('error' => $this->trans('File is too large')));
         }
 
@@ -129,21 +131,27 @@ class DefaultController extends Controller
         //$filename = md5(uniqid());
         $ext = $pathinfo['extension'];
 
-        if($params['allowedExtensions'] && !in_array(strtolower($ext), $params['allowedExtensions'])){
-            $extensions = implode(', ', $params['allowedExtensions']);
-            return $this->uploadReturn(array('error' => $this->trans("File has an invalid extension, it should be one of '%extensions%'.", array('%extensions%' => $extensions))));
+        if($params['allowed_extensions']) {
+            $names = $params['allowed_extensions'];
+            $names = str_replace("'", '', $names);
+            $names = explode(',', $names);
+            array_walk($names, function(&$val) {$val = trim($val);});
+            if (!in_array(strtolower($ext), $names )) {
+                $extensions = implode(', ', $params['allowed_extensions']);
+                return $this->uploadReturn(array('error' => $this->trans("File has an invalid extension, it should be one of '%extensions%'.", array('%extensions%' => $extensions))));
+            }
         }
 
         // TODO: normalize file name
 
-        if(!$params['replaceOldFile']){
+        if(!$params['replace_old_file']){
             /// don't overwrite previous files that were uploaded
-            while (file_exists($params['uploadAbsolutePath'] . $filename . '.' . $ext)) {
+            while (file_exists($this->document_root . $params['upload_path_after_document_root'] . $filename . '.' . $ext)) {
                 $filename .= rand(10, 99);
             }
         }
 
-        if ($file->save($params['uploadAbsolutePath'] . $filename . '.' . $ext)){
+        if ($file->save($this->document_root . $params['upload_path_after_document_root'] . $filename . '.' . $ext)){
             return $this->uploadReturn(array('success'=>true));
         } else {
             return $this->uploadReturn(array('error'=> $this->trans('Could not save uploaded file.') .
@@ -153,14 +161,16 @@ class DefaultController extends Controller
 
     public function listAction($url_safe_encoded_params)
     {
-        $this->render_vars['params'] = array_replace_recursive($this->render_vars['params'], $this->url_safe_encoder->decode($url_safe_encoded_params));
+        $this->render_vars['params'] = $this->initialiceParams($url_safe_encoded_params);
 
-        $in = $this->render_vars['params']['uploadAbsolutePath'];
+        $in = $this->document_root . $this->render_vars['params']['upload_path_after_document_root'];
         //TODO: if not exist create...
 
-        $names = $this->render_vars['params']['allowedExtensions'];
-        array_walk($names, function(&$val) {$val = '*.'.$val;});
-        //$notNames = null;
+        $names = $this->render_vars['params']['allowed_extensions'];
+        $names = str_replace("'", '', $names);
+        $names = explode(',', $names);
+
+        array_walk($names, function(&$val) {$val = '*.'.trim($val);});
 
         $finder = new Finder();
         $finder->files()->depth('==0');
@@ -170,18 +180,11 @@ class DefaultController extends Controller
                 $finder->name(strtoupper($name));
             }
         }
-        //if (isset($notNames) && is_array($notNames)) {
-        //    foreach ($notNames as $name){
-        //        $finder->notName(strtolower($name));
-        //        $finder->notName(strtoupper($name));
-        //    }
-        //}
 
         //TODO tema de sortby
 
 
         $this->render_vars['files'] = $finder->in($in);
-        $this->render_vars['path_after_upload_absolute_path'] = str_replace($this->render_vars['params']['onSelectRemoveFromUploadAbsolutePath'], '', $this->render_vars['params']['uploadAbsolutePath']);
         $this->render_vars['params'] = $this->render_vars['params'];
         $this->render_vars['count_files'] = iterator_count($this->render_vars['files']);
         $this->render_vars['url_safe_encoder'] = $this->url_safe_encoder;
@@ -191,10 +194,10 @@ class DefaultController extends Controller
 
     public function deleteAction($url_safe_encoded_params, $url_safe_encoded_files_to_delete)
     {
-        $params = array_replace_recursive($this->render_vars['params'], $this->url_safe_encoder->decode($url_safe_encoded_params));
+        $params  = $this->initialiceParams($url_safe_encoded_params);
         $files_to_delete = $this->url_safe_encoder->decode($url_safe_encoded_files_to_delete);
         foreach ($files_to_delete as $file){
-            @unlink($params['uploadAbsolutePath'].$file);
+            @unlink($this->document_root . $params['upload_path_after_document_root'].$file);
             //TODO pass error messages
         }
         //return new Response($params['uploadAbsolutePath'].print_r($files_to_delete, true));

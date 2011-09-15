@@ -19,17 +19,25 @@ class MuchoMasFacilFileManagerExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-die(print_r($loader->import('uploadAbsolutePath')));
-//die(print_r(get_class_methods($loader)));
-
-        $container->setParameter('mucho_mas_facil_file_manager.upload_absolute_path', $config['upload_absolute_path']);
-
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+        if (isset($config['options'])) {
+            $container_options = $container->getParameter('mucho_mas_facil_file_manager.options');
+            $user_options = $config['options'];
+            foreach ($user_options as $name => $val) {
+                if(isset($container_options[$name])) {
+                    $container_options[$name] = array_merge($container_options[$name], $val);
+                }
+                else {
+                    $container_options[$name] = $val;
+                }
+            }
+            $container->setParameter('mucho_mas_facil_file_manager.options', $container_options);
+        }//end if
 
     }
 }

@@ -18,17 +18,20 @@ class DemoController extends Controller
 
     public function indexAction()
     {
-        die($this->container->getParameter('kernel.root_dir'));
+        //print_r($this->container->getParameter('mucho_mas_facil_file_manager.options'));
         $url_safe_encoder = new CustomUrlSafeEncoder();
+
         $file_manager_params = array(
-            'maxNumberOfFiles' => 10,
-            'allowedExtensions' => array('jpeg', 'jpg', 'gif', 'png'),
-            'onSelectFunctionJsActions' => //will receive two params: file_name, path_after_upload_absolute_path
+            'load_options' => 'single_pdf',
+            'max_number_of_files' => 10,
+            'allowed_extensions' => "'jpeg', 'jpg', 'gif', 'png'",
+            'on_select_callback_function' => //will receive two params: file_name, upload_path_after_root_dir, input_container
                 "
                     $('#input_name').val(path_after_upload_absolute_path + file_name);
                     $('#mmf-fm-dialog').dialog('close');
                 ",
-            ); //this arrays can be predefined in an ini or yml config path with defaults for images, ckeditor img, ckeditor file, etc...
+            );
+
         $this->render_vars['url_safe_encoded_params'] = $url_safe_encoder->encode($file_manager_params);
         //echo $this->render_vars['url_safe_encoded_params'];
         return $this->render($this->render_vars['bundle_name'] . ':' . $this->render_vars['controller_name'] . ':' . 'index.html.twig', $this->render_vars);

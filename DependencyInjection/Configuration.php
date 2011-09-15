@@ -23,15 +23,22 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('mucho_mas_facil_file_manager');
 
-        $rootNode
-            ->children()
-                ->scalarNode('upload_absolute_path')
-            ->end()
+        $rootNode->children()
+                ->arrayNode('options')
+                ->useAttributeAsKey('name')
+                ->prototype('array')->children()
+                    ->scalarNode('upload_path_after_root_dir')->end()
+                    ->booleanNode('create_path_if_not_exist')->end()
+                    ->booleanNode('replace_old_file')->end()
+                    ->scalarNode('max_number_of_files')->end()
+                    ->scalarNode('on_select_callback_function')->end()
+                    ->scalarNode('size_limit')->end()
+                    ->scalarNode('min_size_limit')->end()
+                    ->scalarNode('max_connections')->end()
+                    ->scalarNode('allowed_extensions')->end()
+                    ->scalarNode('allowed_roles')->end()
+                ->end()
         ;
-
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
 
         return $treeBuilder;
     }
