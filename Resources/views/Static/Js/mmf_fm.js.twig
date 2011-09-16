@@ -20,18 +20,19 @@ function mmf_fm_unblock(blockUI_target)
     }
 }
 
-function mmf_fm_load(container_id, url, data)
+function mmf_fm_load(load_target, url, data)
 {
     mmf_fm_block({
             message: '<p>{{ 'Loading' | trans({}, (bundle_name | lower)) }}...</p>',
             css: { /*backgroundColor: '#f00', color: '#fff',*/ font: '10px bold Arial, Helvetica, sans-serif' }
-    }, '#' + container_id);
+    }, load_target);
 
-    $('#' + container_id).load( url, data, function(responseText, textStatus, XMLHttpRequest) {
+    $(load_target).load( url, data, function(responseText, textStatus, XMLHttpRequest) {
         if (textStatus == "error") {
             alert('{{ 'Error making an Ajax call' |  trans({}, (bundle_name | lower)) }}'+ ': '+ XMLHttpRequest.status + " " + XMLHttpRequest.statusText);
         }
     });
 
-    mmf_fm_unblock('#' + container_id);
+    mmf_fm_unblock(load_target);
 }
+

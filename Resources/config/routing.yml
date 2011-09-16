@@ -10,6 +10,11 @@ mmf_fm_static:
 mmf_fm:
     pattern:  /mmf_fm/{url_safe_encoded_params}
     defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:index }
+
+mmf_fm_with_layout:
+    pattern:  /mmf_fm_with_layout/{url_safe_encoded_params}
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:indexLayout }
+
 mmf_fm_upload:
     pattern:  /mmf_fm_upload
     defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:upload }

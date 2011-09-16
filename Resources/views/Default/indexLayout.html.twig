@@ -1,0 +1,7 @@
+{% extends bundle_name ~ "::layout.html.twig" %}
+
+{% block body %}
+
+{% render "MuchoMasFacilFileManagerBundle:Default:index" with {'url_safe_encoded_params': url_safe_encoded_params}  %}
+
+{% endblock %}

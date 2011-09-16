@@ -10,10 +10,6 @@ use MuchoMasFacil\FileManagerBundle\Util\CustomUrlSafeEncoder;
 use MuchoMasFacil\FileManagerBundle\Util\qqUploadedFileXhr;
 use MuchoMasFacil\FileManagerBundle\Util\qqUploadedFileForm;
 
-use Symfony\Component\DependencyInjection\ContainerAware;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
-
 class DefaultController extends Controller
 {
     private $render_vars = array();
@@ -48,10 +44,11 @@ class DefaultController extends Controller
     {
         $custom_params = $this->url_safe_encoder->decode($url_safe_encoded_params);
         $options = $this->container->getParameter('mucho_mas_facil_file_manager.options');
-        $params = $options['default'];
 
-        if ((isset($custom_params['load_options'])) && (isset($options[$custom_params['load_options']]))) {
-            $params = array_merge($params, $options[$custom_params['load_options']]);
+        $params = $options['options']['default'];
+
+        if ((isset($custom_params['load_options'])) && (isset($options['options'][$custom_params['load_options']]))) {
+            $params = array_merge($params, $options['options'][$custom_params['load_options']]);
         }
         return array_replace_recursive($params, $custom_params);
     }
@@ -71,6 +68,12 @@ class DefaultController extends Controller
             $url_safe_encoded_params = $this->url_safe_encoder->encode($params);
         }
 
+        $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
+        return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
+    }
+
+    public function indexLayoutAction($url_safe_encoded_params)
+    {
         $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
@@ -95,7 +98,9 @@ class DefaultController extends Controller
         $url_safe_encoded_params = $this->getRequest()->get('url_safe_encoded_params');
         $params = $this->initialiceParams($url_safe_encoded_params);
 
-        if (!is_writable($this->document_root . $params['upload_path_after_document_root'])){
+        $full_dir_path = $this->document_root . $params['upload_path_after_document_root'];
+
+        if (!is_writable($full_dir_path)){
             return $this->uploadReturn(array('error' => $this->trans("Server error. Upload directory is not writable.")));
             // TODO: tema de createPathIfNotExist
         }
@@ -146,12 +151,12 @@ class DefaultController extends Controller
 
         if(!$params['replace_old_file']){
             /// don't overwrite previous files that were uploaded
-            while (file_exists($this->document_root . $params['upload_path_after_document_root'] . $filename . '.' . $ext)) {
+            while (file_exists($full_dir_path . $filename . '.' . $ext)) {
                 $filename .= rand(10, 99);
             }
         }
 
-        if ($file->save($this->document_root . $params['upload_path_after_document_root'] . $filename . '.' . $ext)){
+        if ($file->save($full_dir_path . $filename . '.' . $ext)){
             return $this->uploadReturn(array('success'=>true));
         } else {
             return $this->uploadReturn(array('error'=> $this->trans('Could not save uploaded file.') .
@@ -171,7 +176,6 @@ class DefaultController extends Controller
         $names = explode(',', $names);
 
         array_walk($names, function(&$val) {$val = '*.'.trim($val);});
-
         $finder = new Finder();
         $finder->files()->depth('==0');
         if (isset($names) && is_array($names)) {
@@ -180,13 +184,17 @@ class DefaultController extends Controller
                 $finder->name(strtoupper($name));
             }
         }
+        if (is_dir($in)) {
+            $this->render_vars['files'] = $finder->in($in);
+            $this->render_vars['count_files'] = iterator_count($this->render_vars['files']);
+        }
+        else {
+            $this->render_vars['count_files'] = 0;
+        }
 
         //TODO tema de sortby
 
-
-        $this->render_vars['files'] = $finder->in($in);
         $this->render_vars['params'] = $this->render_vars['params'];
-        $this->render_vars['count_files'] = iterator_count($this->render_vars['files']);
         $this->render_vars['url_safe_encoder'] = $this->url_safe_encoder;
         $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);

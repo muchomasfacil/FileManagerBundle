@@ -27,7 +27,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('options')
                 ->useAttributeAsKey('name')
                 ->prototype('array')->children()
-                    ->scalarNode('upload_path_after_root_dir')->end()
+                    ->scalarNode('upload_path_after_document_root')->end()
                     ->booleanNode('create_path_if_not_exist')->end()
                     ->booleanNode('replace_old_file')->end()
                     ->scalarNode('max_number_of_files')->end()

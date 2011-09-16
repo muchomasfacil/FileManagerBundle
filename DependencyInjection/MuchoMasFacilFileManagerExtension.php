@@ -23,21 +23,15 @@ class MuchoMasFacilFileManagerExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
+        $parameter_configs = $container->getParameter('mucho_mas_facil_file_manager.options');
+        //print_r($configs);
+        //print_r($parameter_configs);
+        array_unshift($configs, $parameter_configs);
+        //print_r($configs);
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
-        if (isset($config['options'])) {
-            $container_options = $container->getParameter('mucho_mas_facil_file_manager.options');
-            $user_options = $config['options'];
-            foreach ($user_options as $name => $val) {
-                if(isset($container_options[$name])) {
-                    $container_options[$name] = array_merge($container_options[$name], $val);
-                }
-                else {
-                    $container_options[$name] = $val;
-                }
-            }
-            $container->setParameter('mucho_mas_facil_file_manager.options', $container_options);
-        }//end if
+        //die(print_r($config));
+        $container->setParameter('mucho_mas_facil_file_manager.options', $config);
 
     }
 }

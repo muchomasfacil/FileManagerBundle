@@ -1,4 +1,4 @@
-{% extends bundle_name ~ "::demo_layout.html.twig" %}
+{% extends bundle_name ~ "::layout.html.twig" %}
 
 {% block body %}
 
@@ -22,7 +22,7 @@ $(document).ready(function(){
     $('.mmf-fm').dblclick(function(){
         //$mmf_fm_container.remove();
         $(this).after($mmf_fm_container);
-        mmf_fm_load($mmf_fm_container.attr('id'),'{{ path( 'mmf_fm', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
+        mmf_fm_load('#' + $mmf_fm_container.attr('id'),'{{ path( 'mmf_fm', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
         });
 
 });//closes $(document).ready ...

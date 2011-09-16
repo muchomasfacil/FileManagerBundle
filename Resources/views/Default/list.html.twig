@@ -11,7 +11,7 @@
 {% for file in files %}
 
     <li class="ui-state-default" style="padding: .2em; margin: 5px 0px">
-        <a title="{{ 'Delete this entry' | trans({}, (bundle_name | lower)) }}" class="iew-button-delete" href="javascript:void(0)" onclick="if (confirm('{{ 'Are you sure?' | trans({}, (bundle_name | lower)) }}')) mmf_fm_load('mmf-fm-list-tab', '{{ path( 'mmf_fm_delete', { 'url_safe_encoded_params': url_safe_encoded_params, 'url_safe_encoded_files_to_delete': url_safe_encoder.encode([file.getBaseName()]) }) }}')">{{ 'Delete' | trans({}, (bundle_name | lower)) }}</a>
+        <a title="{{ 'Delete this entry' | trans({}, (bundle_name | lower)) }}" class="iew-button-delete" href="javascript:void(0)" onclick="if (confirm('{{ 'Are you sure?' | trans({}, (bundle_name | lower)) }}')) mmf_fm_load('#' + 'mmf-fm-list-tab', '{{ path( 'mmf_fm_delete', { 'url_safe_encoded_params': url_safe_encoded_params, 'url_safe_encoded_files_to_delete': url_safe_encoder.encode([file.getBaseName()]) }) }}')">{{ 'Delete' | trans({}, (bundle_name | lower)) }}</a>
 {% if (params['on_select_callback_function'] is defined) or (params['CKEditorFuncNum'] is defined) %}
         <a title="{{ 'Select this entry' | trans({}, (bundle_name | lower)) }}" class="iew-button-select" href="javascript:void(0)" onclick="onSelect('{{ file.getBaseName() }}', '{{ params['upload_path_after_document_root'] }}')">{{ 'Select' | trans({}, (bundle_name | lower)) }}</a>
 {% endif %}

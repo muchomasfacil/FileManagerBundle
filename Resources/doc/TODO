@@ -15,13 +15,11 @@ Comand line utils
 
 TODO concretos
 --------------
+comprobar que funcionan todos los posibles parámetros de option...
 posibilidad de renombrar ficheros.
 multiple delete
-mensajes de error del borrado de ficheros
 preview de archivos
 cambiar tabs por dialog bottoms
-possible_param en default index deben ser configurables
-
 
 Js and css requisites
 ---------------------

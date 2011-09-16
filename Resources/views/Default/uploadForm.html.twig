@@ -31,7 +31,7 @@ $(document).ready(function(){
             },
             onComplete: function(id, fileName, responseJSON){
                 if (uploader.getInProgress() == 0){
-                    mmf_fm_load('mmf-fm-list-tab','{{ path( 'mmf_fm_list', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
+                    mmf_fm_load('#' + 'mmf-fm-list-tab','{{ path( 'mmf_fm_list', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
                 }
             },
             template: '<div class="qq-uploader">' +
@@ -49,7 +49,7 @@ $(document).ready(function(){
                 '<span class="qq-upload-failed-text">{{ "Failed" | trans({}, (bundle_name | lower)) }}</span>' +
             '</li>',
 
-{% if params['allowed_extensions'] %}            allowedExtensions: [{{ params['allowed_extensions'] | raw }}],
+{#% if params['allowed_extensions'] %#}{% if false %}            allowedExtensions: [{{ params['allowed_extensions'] | raw }}],
 {% endif %}
 {% if params['size_limit'] %}            sizeLimit: {{ params['size_limit'] }},
 {% endif %}
