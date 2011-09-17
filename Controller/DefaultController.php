@@ -53,28 +53,33 @@ class DefaultController extends Controller
         return array_replace_recursive($params, $custom_params);
     }
 
-    public function indexAction($url_safe_encoded_params)
+    public function ckeditorSpecific($url_safe_encoded_params, $request)
     {
         $params = $this->url_safe_encoder->decode($url_safe_encoded_params);
-
         // TODO estos parametros deberían ser configurables...
         foreach ( array('CKEditorFuncNum', 'CKEditor', 'langCode' ) as $possible_param){
             if ($this->getRequest()->get($possible_param)){
-                $params[$possible_param] = $this->getRequest()->get($possible_param);
+                $params[$possible_param] = $request->get($possible_param);
                 $recode_params = true;
             }
         }
         if (isset($recode_params)){
             $url_safe_encoded_params = $this->url_safe_encoder->encode($params);
         }
+        return $url_safe_encoded_params;
+    }
 
-        $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
+    public function indexAction($url_safe_encoded_params)
+    {
+        $request = $this->getRequest();
+        $this->render_vars['url_safe_encoded_params'] = $this->ckeditorSpecific($url_safe_encoded_params, $request);
         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
 
     public function indexLayoutAction($url_safe_encoded_params)
     {
-        $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;
+        $request = $this->getRequest();
+        $this->render_vars['url_safe_encoded_params'] = $this->ckeditorSpecific($url_safe_encoded_params, $request);
         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
 
@@ -95,6 +100,9 @@ class DefaultController extends Controller
 
     public function uploadAction()
     {
+        $logger = $this->get('logger');
+        $logger->info('Alvaro');
+        //$logger->err('An error occurred');
         $url_safe_encoded_params = $this->getRequest()->get('url_safe_encoded_params');
         $params = $this->initialiceParams($url_safe_encoded_params);
 
@@ -167,7 +175,7 @@ class DefaultController extends Controller
     public function listAction($url_safe_encoded_params)
     {
         $this->render_vars['params'] = $this->initialiceParams($url_safe_encoded_params);
-
+        //die(print_r($this->render_vars['params']));
         $in = $this->document_root . $this->render_vars['params']['upload_path_after_document_root'];
         //TODO: if not exist create...
 

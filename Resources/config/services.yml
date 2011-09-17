@@ -8,7 +8,7 @@ parameters:
                 max_number_of_files: 10  # ~ means any number of files
                 on_select_callback_function:  ~
                 allowed_roles:  ROLE_USER, ROLE_ADMIN # ~means any user
-                allowed_extensions:  'jpg', 'jpeg', 'png', 'gif'  # ~ means any extension
+                allowed_extensions:  "'jpg', 'jpeg', 'png', 'gif'"  # ~ means any extension
                 size_limit:  204800
                 min_size_limit:  ~
                 max_connections:  3
@@ -20,7 +20,7 @@ parameters:
                 max_number_of_files: 1
             single_pdf:
                 max_number_of_files: 1
-                allowed_extensions: 'pdf'
+                allowed_extensions: "'pdf'"
             single_any_file:
                 max_number_of_files: 1
                 allowed_extensions: ~
@@ -28,7 +28,7 @@ parameters:
                 max_number_of_files: ~
             collection_swf:
                 max_number_of_files: ~
-                allowed_extensions: 'swf'
+                allowed_extensions: "'swf'"
             collection_any_file:
                 max_number_of_files: ~
                 allowed_extensions: ~

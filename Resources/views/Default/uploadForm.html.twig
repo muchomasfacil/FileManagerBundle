@@ -49,7 +49,7 @@ $(document).ready(function(){
                 '<span class="qq-upload-failed-text">{{ "Failed" | trans({}, (bundle_name | lower)) }}</span>' +
             '</li>',
 
-{#% if params['allowed_extensions'] %#}{% if false %}            allowedExtensions: [{{ params['allowed_extensions'] | raw }}],
+{% if params['allowed_extensions'] %}            allowedExtensions: [{{ params['allowed_extensions'] | raw }}],
 {% endif %}
 {% if params['size_limit'] %}            sizeLimit: {{ params['size_limit'] }},
 {% endif %}
