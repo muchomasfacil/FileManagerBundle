@@ -9,7 +9,7 @@ parameters:
                 on_select_callback_function:  ~
                 allowed_roles:  ROLE_USER, ROLE_ADMIN # ~means any user
                 allowed_extensions:  "'jpg', 'jpeg', 'png', 'gif'"  # ~ means any extension
-                size_limit:  204800
+                size_limit:  204800 #in bytes
                 min_size_limit:  ~
                 max_connections:  3
                 #thumnails:  null use avalancheimaginebundle instead
@@ -17,19 +17,21 @@ parameters:
                 #ckeditor:  null
                 #langcode:  null
             single_image:
+                upload_path_after_document_root: /uploads/images/
                 max_number_of_files: 1
-            single_pdf:
-                max_number_of_files: 1
-                allowed_extensions: "'pdf'"
             single_any_file:
+                upload_path_after_document_root: /uploads/files/
                 max_number_of_files: 1
                 allowed_extensions: ~
             collection_image:
+                upload_path_after_document_root: /uploads/images/
                 max_number_of_files: ~
             collection_swf:
+                upload_path_after_document_root: /uploads/swf/
                 max_number_of_files: ~
                 allowed_extensions: "'swf'"
             collection_any_file:
+                upload_path_after_document_root: /uploads/files/
                 max_number_of_files: ~
                 allowed_extensions: ~
 

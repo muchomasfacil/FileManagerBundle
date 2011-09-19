@@ -15,6 +15,7 @@ Comand line utils
 
 TODO concretos
 --------------
+pasar inlines a un css
 comprobar que funcionan todos los posibles parámetros de option...
 posibilidad de renombrar ficheros.
 multiple delete
@@ -23,11 +24,6 @@ cambiar tabs por dialog bottoms
 
 Js and css requisites
 ---------------------
-- jquery
-- jqueryui con dialog...
-- jquery-ui-fix-4727.js para arreglar los problemas con los inputs de los dialogs del ckeditor (quedará arreglado en la próxima version de jqueryui??)
-- jquery theme
-- jquery.blockUI.js
 
 Voy por
 -------

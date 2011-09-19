@@ -53,7 +53,7 @@ class DefaultController extends Controller
         return array_replace_recursive($params, $custom_params);
     }
 
-    public function ckeditorSpecific($url_safe_encoded_params, $request)
+    private function getCkeditorSpecificParams($url_safe_encoded_params, $request)
     {
         $params = $this->url_safe_encoder->decode($url_safe_encoded_params);
         // TODO estos parametros deberían ser configurables...
@@ -72,14 +72,18 @@ class DefaultController extends Controller
     public function indexAction($url_safe_encoded_params)
     {
         $request = $this->getRequest();
-        $this->render_vars['url_safe_encoded_params'] = $this->ckeditorSpecific($url_safe_encoded_params, $request);
+        $this->render_vars['url_safe_encoded_params'] = $this->getCkeditorSpecificParams($url_safe_encoded_params, $request);
         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
 
-    public function indexLayoutAction($url_safe_encoded_params)
+    public function indexLayoutAction($url_safe_encoded_params, $layout_to_use)
     {
         $request = $this->getRequest();
-        $this->render_vars['url_safe_encoded_params'] = $this->ckeditorSpecific($url_safe_encoded_params, $request);
+        if (!$layout_to_use) {
+          $layout_to_use = $this->render_vars['bundle_name'].'::layout.html.twig';
+        }
+        $this->render_vars['layout_to_use'] = $layout_to_use;
+        $this->render_vars['url_safe_encoded_params'] = $this->getCkeditorSpecificParams($url_safe_encoded_params, $request);
         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__), $this->render_vars);
     }
 
@@ -100,6 +104,18 @@ class DefaultController extends Controller
 
     public function uploadAction()
     {
+        //TODO
+        //make all checks:
+        //upload_path_after_document_root: /uploads/
+        //create_path_if_not_exist: true
+        //replace_old_file: false
+        //max_number_of_files: 10  # ~ means any number of files
+        //on_select_callback_function:  ~
+        //allowed_roles:  ROLE_USER, ROLE_ADMIN # ~means any user
+        //allowed_extensions:  "'jpg', 'jpeg', 'png', 'gif'"  # ~ means any extension
+        //size_limit:  204800 #in bytes
+        //min_size_limit:  ~
+        //max_connections:  3
         $logger = $this->get('logger');
         $logger->info('Alvaro');
         //$logger->err('An error occurred');
@@ -109,8 +125,13 @@ class DefaultController extends Controller
         $full_dir_path = $this->document_root . $params['upload_path_after_document_root'];
 
         if (!is_writable($full_dir_path)){
-            return $this->uploadReturn(array('error' => $this->trans("Server error. Upload directory is not writable.")));
-            // TODO: tema de createPathIfNotExist
+            if ($params['create_path_if_not_exist']){
+                $this->mkdir_recursive($full_dir_path);
+            }
+            else {
+                return $this->uploadReturn(array('error' => $this->trans("Server error. Upload directory is not writable.")));
+            }
+
         }
 
 
@@ -172,12 +193,27 @@ class DefaultController extends Controller
         }
     }
 
+    private function mkdir_recursive($pathname, $mode = 0777)
+    {
+        is_dir(dirname($pathname)) || self::mkdir_recursive(dirname($pathname), $mode);
+        if (is_dir($pathname))
+        {
+          return true;
+        }
+        else
+        {
+          @mkdir($pathname, $mode);
+          return @chmod($pathname, $mode);
+        }
+    }
+
     public function listAction($url_safe_encoded_params)
     {
+
+        // TODO PREVIEW CON PLUGIN DE MALSUP
         $this->render_vars['params'] = $this->initialiceParams($url_safe_encoded_params);
         //die(print_r($this->render_vars['params']));
         $in = $this->document_root . $this->render_vars['params']['upload_path_after_document_root'];
-        //TODO: if not exist create...
 
         $names = $this->render_vars['params']['allowed_extensions'];
         $names = str_replace("'", '', $names);

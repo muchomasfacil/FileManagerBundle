@@ -1,3 +1,4 @@
+'File manager': 'Gestor de ficheros'
 'Double click text input to enter file manager': 'Doble click sobre la caja de texto para acceder al gestor de ficheros'
 'Error making an Ajax call': 'Error realizando llamada Ajax'
 'Loading': 'Cargando'
@@ -26,5 +27,10 @@
 'Delete': 'Borrar'
 'Select': 'Seleccionar'
 'Rename': 'Renombrar'
-Are you sure?: ¿Está seguro?
+'Are you sure?': '¿Está seguro?'
+'Allowed file extensions': 'Extensiones de ficheros permitidas'
+'Max file size': 'Tamaño máximo del fichero'
+'Min file size': 'Tamaño mínimo del fichero'
+'Max number of files': 'Máximo número de entradas'
+'Target path': 'Directorio de destino'
 
