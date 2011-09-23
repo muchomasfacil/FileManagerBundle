@@ -22,9 +22,9 @@ class DemoController extends Controller
         $url_safe_encoder = new CustomUrlSafeEncoder();
 
         $file_manager_params = array(
-            'load_options' => 'single_pdf',
-            'max_number_of_files' => 10,
-            'allowed_extensions' => "'jpeg', 'jpg', 'gif', 'png'",
+            //'load_options' => 'single_pdf',
+            //'max_number_of_files' => 10,
+            //'allowed_extensions' => 'jpeg',
             'on_select_callback_function' => //will receive two params: file_name, upload_path_after_root_dir, input_container
                 "
                     $('#input_name').val(upload_path_after_document_root + file_name);
@@ -37,4 +37,3 @@ class DemoController extends Controller
         return $this->render($this->render_vars['bundle_name'] . ':' . $this->render_vars['controller_name'] . ':' . 'index.html.twig', $this->render_vars);
     }
 }
-

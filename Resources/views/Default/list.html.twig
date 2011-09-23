@@ -38,6 +38,7 @@ function onSelect(file_name, upload_path_after_document_root)
 {% if params['CKEditorFuncNum'] is defined %}
     // in general ...window.opener.CKEDITOR.tools.callFunction( funcNum, fileUrl [, data] );
     window.opener.CKEDITOR.tools.callFunction( '{{ params['CKEditorFuncNum'] }}', upload_path_after_document_root + file_name );
+    window.close();
 {% endif %}
 
 }
@@ -51,3 +52,4 @@ $( ".iec-button-delete").button({ text: false, icons: { primary: "ui-icon-trash"
 });//document.ready
 //]]>
 </script>
+

@@ -17,7 +17,7 @@ mmf_fm_with_layout:
 
 mmf_fm_upload:
     pattern:  /mmf_fm_upload
-    defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:upload }
+    defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:upload }   #_format: js
 mmf_fm_upload_form:
     pattern:  /mmf_fm_upload_form/{url_safe_encoded_params}
     defaults: { _controller: MuchoMasFacilFileManagerBundle:Default:uploadForm }

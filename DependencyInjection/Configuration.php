@@ -33,8 +33,8 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('max_number_of_files')->end()
                     ->scalarNode('on_select_callback_function')->end()
                     ->scalarNode('size_limit')->end()
-                    ->scalarNode('min_size_limit')->end()
-                    ->scalarNode('max_connections')->end()
+                    //->scalarNode('min_size_limit')->end()
+                    //->scalarNode('max_connections')->end()
                     ->scalarNode('allowed_extensions')->end()
                     ->scalarNode('allowed_roles')->end()
                 ->end()
@@ -43,4 +43,3 @@ class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 }
-

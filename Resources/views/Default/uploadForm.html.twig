@@ -1,11 +1,8 @@
-    <p>{{ 'To upload a file, click on the button below. Drag-and-drop is supported in FF, Chrome.' | trans({}, (bundle_name | lower)) }}</p>
-	<p>{{ 'Progress-bar is supported in FF3.6+, Chrome6+, Safari4+' | trans({}, (bundle_name | lower)) }}</p>
 <p>{{ 'Target path' | trans({}, (bundle_name | lower)) }}: {{ params['upload_path_after_document_root'] }}</p>
     <ul>
-{% if params['allowed_extensions'] %}<li>{{ 'Allowed file extensions' | trans({}, (bundle_name | lower)) }}: {{ params['allowed_extensions'] | raw }}</li>{% endif %}
+{% if params['allowed_extensions'] %}<li>{{ 'Allowed file extensions' | trans({}, (bundle_name | lower)) }}: {{ params['allowed_extensions']}}</li>{% endif %}
 {% if params['size_limit'] %}<li>{{ 'Max file size' | trans({}, (bundle_name | lower)) }}: {{ params['size_limit'] }} bytes</li>{% endif %}
-{% if params['min_size_limit'] %}<li>{{ 'Min file size' | trans({}, (bundle_name | lower)) }}: {{ params['min_size_limit'] }} bytes</li>{% endif %}
-{% if params['max_number_of_files'] %}<li>{{ 'Max number of files' | trans({}, (bundle_name | lower)) }}: {{ params['max_number_of_files'] }} bytes</li>{% endif %}
+{% if params['max_number_of_files'] %}<li>{{ 'Max number of files' | trans({}, (bundle_name | lower)) }}: {{ params['max_number_of_files'] }}</li>{% endif %}
     </ul>
 	<div id="mmf-fm-file-uploader">
 		<noscript>
@@ -16,57 +13,48 @@
 
 <script type="text/javascript">
 //<![CDATA[
-
-
-
-
 $(document).ready(function(){
 
-    var uploader = new qq.FileUploader({
-            element: $('#mmf-fm-file-uploader')[0],
-            action: '{{ path( 'mmf_fm_upload') }}',
-            params: {
-                'url_safe_encoded_params': '{{ url_safe_encoded_params }}'
-            },
-            messages: {
-                typeError: "{{ "{file} has invalid extension. Only {extensions} are allowed." | trans({}, (bundle_name | lower)) }}",
-                sizeError: "{{ "{file} is too large, maximum file size is {sizeLimit}." | trans({}, (bundle_name | lower)) }}",
-                minSizeError: "{{ "{file} is too small, minimum file size is {minSizeLimit}." | trans({}, (bundle_name | lower)) }}",
-                emptyError: "{{ "{file} is empty, please select files again without it." | trans({}, (bundle_name | lower)) }}",
-                onLeave: "{{ "The files are being uploaded, if you leave now the upload will be cancelled." | trans({}, (bundle_name | lower)) }}"
-            },
-            onComplete: function(id, fileName, responseJSON){
-                if (uploader.getInProgress() == 0){
-                    mmf_fm_load('#' + 'mmf-fm-list-tab','{{ path( 'mmf_fm_list', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
-                }
-            },
-            template: '<div class="qq-uploader">' +
-                '<div class="qq-upload-drop-area"><span>{{ "Drop files here to upload" | trans({}, (bundle_name | lower)) }}</span></div>' +
-                '<div class="qq-upload-button">{{ "Files" | trans({}, (bundle_name | lower)) }}</div>' +
-                '<ul class="qq-upload-list"></ul>' +
-             '</div>',
+    $("#mmf-fm-file-uploader").plupload({
+		// General settings
+		runtimes : 'html5,html4',
+		url : '{{ path('mmf_fm_upload') }}',
+		max_file_size : '{{ params['size_limit'] }}b',
+		chunk_size : '1mb',
+		unique_names : false,
+        multiple_queues: true,
+        multipart: true,
+        multipart_params: { 'url_safe_encoded_params': '{{ url_safe_encoded_params }}'},
+		// Specify what files to browse for
+		filters : [
+			{title : "{{ 'Allowed file extensions' | trans({}, (bundle_name | lower)) }}", extensions : "{{ params['allowed_extensions'] }}"},
+		]
+	});
 
-            // template for one item in file list
-            fileTemplate: '<li>' +
-                '<span class="qq-upload-file"></span>' +
-                '<span class="qq-upload-spinner"></span>' +
-                '<span class="qq-upload-size"></span>' +
-                '<a class="qq-upload-cancel" href="#">{{ "Cancel" | trans({}, (bundle_name | lower)) }}</a>' +
-                '<span class="qq-upload-failed-text">{{ "Failed" | trans({}, (bundle_name | lower)) }}</span>' +
-            '</li>',
+/*	uploader.bind('FileUploaded', function(up, file, response) {
+var obj = jQuery.parseJSON(response.response);
+to get the url I then access obj.result
 
-{% if params['allowed_extensions'] %}            allowedExtensions: [{{ params['allowed_extensions'] | raw }}],
-{% endif %}
-{% if params['size_limit'] %}            sizeLimit: {{ params['size_limit'] }},
-{% endif %}
-{% if params['min_size_limit'] %}            minSizeLimit:  {{ params['min_size_limit'] }},
-{% endif %}
-{% if params['max_connections'] %}            maxConnections: {{ params['max_connections'] }},
-{% endif %}
-            debug: false
-        });
+http://www.plupload.com/punbb/viewtopic.php?id=45
+
+uploader.bind('ChunkUploaded', function(up, file, response){
+
+        response = jQuery.parseJSON( response.response );
+
+        if (response.error){
+            uploader.trigger('Error', {
+                code : response.error.code,
+                message : response.error.message,
+                file : file
+            });
+        }
+
+    });
+
+*/
 
 });//closes $(document).ready ...
 
 //]]>
 </script>
+

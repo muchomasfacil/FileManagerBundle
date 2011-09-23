@@ -95,102 +95,145 @@ class DefaultController extends Controller
     }
 
 
-    private function uploadReturn($return)
+    /*private function uploadReturn($return)
     {
         $response = new Response(json_encode($return));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
-    }
+    }*/
 
     public function uploadAction()
     {
         //TODO
         //make all checks:
-        //upload_path_after_document_root: /uploads/
-        //create_path_if_not_exist: true
+
+        //**upload_path_after_document_root: /uploads/
+        //**create_path_if_not_exist: true
         //replace_old_file: false
         //max_number_of_files: 10  # ~ means any number of files
         //on_select_callback_function:  ~
+        //size_limit:  204800 #in bytes
         //allowed_roles:  ROLE_USER, ROLE_ADMIN # ~means any user
         //allowed_extensions:  "'jpg', 'jpeg', 'png', 'gif'"  # ~ means any extension
-        //size_limit:  204800 #in bytes
-        //min_size_limit:  ~
-        //max_connections:  3
+
         $logger = $this->get('logger');
-        $logger->info('Alvaro');
+        //$logger->info(print_r($params, true));
+                //$logger->info(print_r($params, true));
+        //$logger->info(print_r($request->files->all(), true));
         //$logger->err('An error occurred');
+
+
+        //http://miconsultingpartners/app_dev.php/mmf_fm_upload.json?url_safe_encoded_params=
+        $request = $this->get('request');
+        $this->render_vars['return'] = array("jsonrpc" => "2.0", "id"=>"id");
         $url_safe_encoded_params = $this->getRequest()->get('url_safe_encoded_params');
+        //die(var_dump($url_safe_encoded_params, true));
         $params = $this->initialiceParams($url_safe_encoded_params);
+        $full_target_path = $this->document_root . $params['upload_path_after_document_root'];
 
-        $full_dir_path = $this->document_root . $params['upload_path_after_document_root'];
-
-        if (!is_writable($full_dir_path)){
+        if (!is_writable($full_target_path)){
             if ($params['create_path_if_not_exist']){
-                $this->mkdir_recursive($full_dir_path);
-            }
-            else {
-                return $this->uploadReturn(array('error' => $this->trans("Server error. Upload directory is not writable.")));
-            }
-
-        }
-
-
-        // TODO: test iframe
-        if (isset($_GET['qqfile'])) {
-            $file = new qqUploadedFileXhr();
-        } elseif (isset($_FILES['qqfile'])) {
-            $file = new qqUploadedFileForm();
-        } else {
-            $file = false;
-        }
-
-        if (!$file){
-            return $this->uploadReturn(array('error' => $this->trans('No files were uploaded.')));
-        }
-
-        $size = $file->getSize();
-
-        if ($size == 0) {
-            return $this->uploadReturn(array('error' => $this->trans('File is empty')));
-        }
-
-        // TODO : tema de minSizeLimit
-
-        if ($size > $params['size_limit']) {
-            return $this->uploadReturn(array('error' => $this->trans('File is too large')));
-        }
-
-        $pathinfo = pathinfo($file->getName());
-        $filename = $pathinfo['filename'];
-        //$filename = md5(uniqid());
-        $ext = $pathinfo['extension'];
-
-        if($params['allowed_extensions']) {
-            $names = $params['allowed_extensions'];
-            $names = str_replace("'", '', $names);
-            $names = explode(',', $names);
-            array_walk($names, function(&$val) {$val = trim($val);});
-            if (!in_array(strtolower($ext), $names )) {
-                $extensions = implode(', ', $params['allowed_extensions']);
-                return $this->uploadReturn(array('error' => $this->trans("File has an invalid extension, it should be one of '%extensions%'.", array('%extensions%' => $extensions))));
+                if(!$this->mkdir_recursive($full_target_path)) {
+                    $this->render_vars['return']["error"] = array("code" => 104, "message" => $this->trans("Could not create target path"));
+                    return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
+                }
             }
         }
 
-        // TODO: normalize file name
-
-        if(!$params['replace_old_file']){
-            /// don't overwrite previous files that were uploaded
-            while (file_exists($full_dir_path . $filename . '.' . $ext)) {
-                $filename .= rand(10, 99);
-            }
+        if (!is_writable($full_target_path)){
+            $this->render_vars['return']["error"] = array("code" => 105, "message" => $this->trans("Server error. Upload directory is not writable."));
+            return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
         }
 
-        if ($file->save($full_dir_path . $filename . '.' . $ext)){
-            return $this->uploadReturn(array('success'=>true));
-        } else {
-            return $this->uploadReturn(array('error'=> $this->trans('Could not save uploaded file.') .
-                $this->trans('The upload was cancelled, or server error encountered')));
+//------------------------------------------------------------------------------
+        // Get parameters
+        $chunk = isset($_REQUEST["chunk"]) ? $_REQUEST["chunk"] : 0;
+        $chunks = isset($_REQUEST["chunks"]) ? $_REQUEST["chunks"] : 0;
+        $fileName = isset($_REQUEST["name"]) ? $_REQUEST["name"] : '';
+
+        // Clean the fileName for security reasons
+        $fileName = preg_replace('/[^\w\._]+/', '', $fileName);
+
+        // Make sure the fileName is unique but only if chunking is disabled
+        if ($chunks < 2 && file_exists($full_target_path . DIRECTORY_SEPARATOR . $fileName)) {
+	        $ext = strrpos($fileName, '.');
+	        $fileName_a = substr($fileName, 0, $ext);
+	        $fileName_b = substr($fileName, $ext);
+
+	        $count = 1;
+	        while (file_exists($full_target_path . DIRECTORY_SEPARATOR . $fileName_a . '_' . $count . $fileName_b))
+		        $count++;
+
+	        $fileName = $fileName_a . '_' . $count . $fileName_b;
         }
+
+        $contentType = '';
+        // Look for the content type header
+        if (isset($_SERVER["HTTP_CONTENT_TYPE"])) {
+	        $contentType = $_SERVER["HTTP_CONTENT_TYPE"];
+        }
+        if (isset($_SERVER["CONTENT_TYPE"])) {
+	        $contentType = $_SERVER["CONTENT_TYPE"];
+        }
+        // Handle non multipart uploads older WebKit versions didn't support multipart in HTML5
+        if (strpos($contentType, "multipart") !== false) {
+	        if (isset($_FILES['file']['tmp_name']) && is_uploaded_file($_FILES['file']['tmp_name'])) {
+		        // Open temp file
+		        $out = fopen($full_target_path . DIRECTORY_SEPARATOR . $fileName, $chunk == 0 ? "wb" : "ab");
+		        if ($out) {
+			        // Read binary input stream and append it to temp file
+			        $in = fopen($_FILES['file']['tmp_name'], "rb");
+
+			        if ($in) {
+				        while ($buff = fread($in, 4096))
+					        fwrite($out, $buff);
+			        }
+			        else {
+			            $this->render_vars['return']["error"] = array("code" => 101, "message" => $this->trans("Failed to open input stream."));
+                        return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
+				    }
+			        fclose($in);
+			        fclose($out);
+			        @unlink($_FILES['file']['tmp_name']);
+		        }
+		        else {
+    		        $this->render_vars['return']["error"] = array("code" => 102, "message" => $this->trans("Failed to open output stream."));
+                    return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
+			    }
+	        }
+	        else {
+    	        $this->render_vars['return']["error"] = array("code" => 103, "message" => $this->trans("Failed to move uploaded file."));
+                return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
+		    }
+        }
+        else {
+	        // Open temp file
+	        $out = fopen($full_target_path . DIRECTORY_SEPARATOR . $fileName, $chunk == 0 ? "wb" : "ab");
+	        if ($out) {
+		        // Read binary input stream and append it to temp file
+		        $in = fopen("php://input", "rb");
+
+		        if ($in) {
+			        while ($buff = fread($in, 4096)) {
+				        fwrite($out, $buff);
+				    }
+		        }
+		        else {
+    		        $this->render_vars['return']["error"] = array("code" => 101, "message" => $this->trans("Failed to open input stream."));
+                    return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
+                }
+		        fclose($in);
+		        fclose($out);
+	        }
+	        else {
+		        $this->render_vars['return']["error"] = array("code" => 102, "message" => $this->trans("Failed to open output stream."));
+                return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
+		    }
+        }
+//------------------------------------------------------------------------------
+
+        $this->render_vars['return']["result"] = null;
+        return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
     }
 
     private function mkdir_recursive($pathname, $mode = 0777)
@@ -259,4 +302,3 @@ class DefaultController extends Controller
         );
     }
 }
-

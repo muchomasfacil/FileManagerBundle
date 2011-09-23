@@ -4,15 +4,17 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>{{ 'Gestor de ficheros' | trans({}, (bundle_name | lower)) }}</title>
         {% block stylesheets %}
-        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/base/jquery-ui.css" id="theme">
-        <link type="text/css" href="{{ asset('bundles/muchomasfacilfilemanager/css/qqUploadedFile.css') }}" rel="stylesheet" />
+        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/start{# base #}/jquery-ui.css" id="theme">
+        <link rel="stylesheet" href="{{ asset('js/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css') }}" id="theme">
         <link type="text/css" href="{{ asset('bundles/muchomasfacilfilemanager/css/mmf_fm.css') }}" rel="stylesheet" />
         {% endblock %}
         {% block javascripts %}
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"></script>
         <script src="{{ asset('js/malsup/jquery.blockUI.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('bundles/muchomasfacilfilemanager/js/qqUploadedFile.js') }}"></script>
+        <script src="{{ asset('js/plupload/plupload.full.js') }}"></script>
+        <script src="{{ asset('js/plupload/jquery.ui.plupload/jquery.ui.plupload.js') }}"></script>
+        <script src="{{ asset('js/plupload/i18n/' ~ app.getSession().getLocale() ~ '.js') }}"></script>
         <script src="{{ path('mmf_fm_static', {'template': 'mmf_fm', '_format': 'js'}) }}" type="text/javascript"></script>
         {% endblock %}
 
