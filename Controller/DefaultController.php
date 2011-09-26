@@ -45,10 +45,10 @@ class DefaultController extends Controller
         $custom_params = $this->url_safe_encoder->decode($url_safe_encoded_params);
         $options = $this->container->getParameter('mucho_mas_facil_file_manager.options');
 
-        $params = $options['options']['default'];
+        $params = $options['default'];
 
-        if ((isset($custom_params['load_options'])) && (isset($options['options'][$custom_params['load_options']]))) {
-            $params = array_merge($params, $options['options'][$custom_params['load_options']]);
+        if ((isset($custom_params['load_options'])) && (isset($options[$custom_params['load_options']]))) {
+            $params = array_merge($params, $options[$custom_params['load_options']]);
         }
         return array_replace_recursive($params, $custom_params);
     }

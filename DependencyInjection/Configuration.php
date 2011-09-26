@@ -23,7 +23,8 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('mucho_mas_facil_file_manager');
 
-        $rootNode->children()
+        $rootNode
+            ->children()
                 ->arrayNode('options')
                 ->useAttributeAsKey('name')
                 ->prototype('array')->children()
@@ -38,6 +39,7 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('allowed_extensions')->end()
                     ->scalarNode('allowed_roles')->end()
                 ->end()
+            ->end()
         ;
 
         return $treeBuilder;
