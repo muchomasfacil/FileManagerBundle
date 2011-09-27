@@ -28,30 +28,29 @@ $(document).ready(function(){
 		// Specify what files to browse for
 		filters : [
 			{title : "{{ 'Allowed file extensions' | trans({}, (bundle_name | lower)) }}", extensions : "{{ params['allowed_extensions'] }}"},
-		]
+		],
+		init: {
+            UploadComplete: function(up, files) {
+                mmf_fm_load('#mmf-fm-list-tab','{{ path( 'mmf_fm_list', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
+            },
+            Error: function(up, error) {
+
+            },
+            FileUploaded:  function(Up, File, Response) {
+                var obj = eval('(' + Response['response'] + ')'); // parse JSON response
+                // check for server-side error
+                if ((typeof(obj.result) != 'undefined') && obj.result == 'error') {
+                    Up.trigger("Error", {message : File.name + ': ' + obj.message, code : obj.code , details : obj.details, file: File});
+                    // return false so pluploadQueue handlers do not receive
+                    // FileUploaded but instead receive only the error
+                    // we have raised - so it will flag file as failed rather
+                    // than successful
+                    return false; // stop propagation
+               }
+           }//end fileuploaded
+		}//end of init
 	});
-
-/*	uploader.bind('FileUploaded', function(up, file, response) {
-var obj = jQuery.parseJSON(response.response);
-to get the url I then access obj.result
-
-http://www.plupload.com/punbb/viewtopic.php?id=45
-
-uploader.bind('ChunkUploaded', function(up, file, response){
-
-        response = jQuery.parseJSON( response.response );
-
-        if (response.error){
-            uploader.trigger('Error', {
-                code : response.error.code,
-                message : response.error.message,
-                file : file
-            });
-        }
-
-    });
-
-*/
+//http://www.plupload.com/punbb/viewtopic.php?id=45
 
 });//closes $(document).ready ...
 

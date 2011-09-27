@@ -122,10 +122,10 @@ class DefaultController extends Controller
         //$logger->info(print_r($request->files->all(), true));
         //$logger->err('An error occurred');
 
-
         //http://miconsultingpartners/app_dev.php/mmf_fm_upload.json?url_safe_encoded_params=
+
         $request = $this->get('request');
-        $this->render_vars['return'] = array("jsonrpc" => "2.0", "id"=>"id");
+
         $url_safe_encoded_params = $this->getRequest()->get('url_safe_encoded_params');
         //die(var_dump($url_safe_encoded_params, true));
         $params = $this->initialiceParams($url_safe_encoded_params);
@@ -134,14 +134,26 @@ class DefaultController extends Controller
         if (!is_writable($full_target_path)){
             if ($params['create_path_if_not_exist']){
                 if(!$this->mkdir_recursive($full_target_path)) {
-                    $this->render_vars['return']["error"] = array("code" => 104, "message" => $this->trans("Could not create target path"));
+                    $this->render_vars['return'] = array(
+                        'jsonrpc' => '2.0',
+                        'result' => 'error',
+                        'code' => '104',
+                        'message' => $this->trans('Upload not accepted'),
+                        'details' => $this->trans('Could not create target path'),
+                    );
                     return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
                 }
             }
         }
 
         if (!is_writable($full_target_path)){
-            $this->render_vars['return']["error"] = array("code" => 105, "message" => $this->trans("Server error. Upload directory is not writable."));
+            $this->render_vars['return'] = array(
+                'jsonrpc' => '2.0',
+                'result' => 'error',
+                'code' => '105',
+                'message' => $this->trans('Upload not accepted'),
+                'details' => $this->trans('Upload directory is not writable'),
+            );
             return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
         }
 
@@ -189,7 +201,13 @@ class DefaultController extends Controller
 					        fwrite($out, $buff);
 			        }
 			        else {
-			            $this->render_vars['return']["error"] = array("code" => 101, "message" => $this->trans("Failed to open input stream."));
+			            $this->render_vars['return'] = array(
+                            'jsonrpc' => '2.0',
+                            'result' => 'error',
+                            'code' => '101',
+                            'message' => $this->trans('Upload not accepted'),
+                            'details' => $this->trans('Failed to open input stream'),
+                        );
                         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
 				    }
 			        fclose($in);
@@ -197,12 +215,24 @@ class DefaultController extends Controller
 			        @unlink($_FILES['file']['tmp_name']);
 		        }
 		        else {
-    		        $this->render_vars['return']["error"] = array("code" => 102, "message" => $this->trans("Failed to open output stream."));
+    		        $this->render_vars['return'] = array(
+                        'jsonrpc' => '2.0',
+                        'result' => 'error',
+                        'code' => '102',
+                        'message' => $this->trans('Upload not accepted'),
+                        'details' => $this->trans('Failed to open input stream'),
+                    );
                     return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
 			    }
 	        }
 	        else {
-    	        $this->render_vars['return']["error"] = array("code" => 103, "message" => $this->trans("Failed to move uploaded file."));
+                $this->render_vars['return'] = array(
+                    'jsonrpc' => '2.0',
+                    'result' => 'error',
+                    'code' => '103',
+                    'message' => $this->trans('Upload not accepted'),
+                    'details' => $this->trans('Failed to move uploaded file'),
+                );
                 return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
 		    }
         }
@@ -219,20 +249,38 @@ class DefaultController extends Controller
 				    }
 		        }
 		        else {
-    		        $this->render_vars['return']["error"] = array("code" => 101, "message" => $this->trans("Failed to open input stream."));
+    		        $this->render_vars['return'] = array(
+                        'jsonrpc' => '2.0',
+                        'result' => 'error',
+                        'code' => '101',
+                        'message' => $this->trans('Upload not accepted'),
+                        'details' => $this->trans('Failed to open input stream'),
+                    );
                     return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
                 }
 		        fclose($in);
 		        fclose($out);
 	        }
 	        else {
-		        $this->render_vars['return']["error"] = array("code" => 102, "message" => $this->trans("Failed to open output stream."));
+		        $this->render_vars['return'] = array(
+                    'jsonrpc' => '2.0',
+                    'result' => 'error',
+                    'code' => '102',
+                    'message' => $this->trans('Upload not accepted'),
+                    'details' => $this->trans('Failed to open input stream'),
+                );
                 return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
 		    }
         }
 //------------------------------------------------------------------------------
 
-        $this->render_vars['return']["result"] = null;
+        $this->render_vars['return'] = array(
+            'jsonrpc' => '2.0',
+            'result' => 'success',
+            'code' => '101',
+            'message' => $this->trans('Upload successfull'),
+            'details' => $this->trans('All files uploaded'),
+        );
         return $this->render($this->getTemplateNameByDefaults(__FUNCTION__, 'json'), $this->render_vars);
     }
 

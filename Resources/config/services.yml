@@ -9,8 +9,6 @@ parameters:
             size_limit:  204800 #in bytes
             allowed_extensions:  jpg,jpeg,png,gif  # ~ means any extension #should go like : [ext: mimetype, jpg: [image/jpeg, image/pjpeg], ]
             allowed_roles:  ROLE_USER, ROLE_ADMIN # ~means any user
-            ##min_size_limit:  ~
-            ##max_connections:  3
         single_image:
             upload_path_after_document_root: /uploads/images/
             max_number_of_files: 1
