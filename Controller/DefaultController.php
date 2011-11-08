@@ -287,15 +287,33 @@ class DefaultController extends Controller
     private function mkdir_recursive($pathname, $mode = 0777)
     {
         is_dir(dirname($pathname)) || self::mkdir_recursive(dirname($pathname), $mode);
-        if (is_dir($pathname))
-        {
+        if (is_dir($pathname)) {
           return true;
         }
-        else
-        {
+        else {
           @mkdir($pathname, $mode);
           return @chmod($pathname, $mode);
         }
+    }
+    
+    private static function rmdir_recursive($filepath)
+    {
+        if (is_dir($filepath) && !is_link($filepath)) {
+            if ($dh = opendir($filepath)) {
+                while (($sf = readdir($dh)) !== false) {
+                    if ($sf == '.' || $sf == '..') {
+                        continue;
+                    }
+                    if (!self::rmdir_recursive($filepath.'/'.$sf)) {
+                        //throw new Exception($filepath.'/'.$sf.' could not be deleted.');
+                        return false;
+                    }
+                }
+                closedir($dh);
+            }
+            return rmdir($filepath);
+        }
+        return unlink($filepath);
     }
 
     public function listAction($url_safe_encoded_params)
