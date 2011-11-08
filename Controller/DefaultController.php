@@ -347,6 +347,13 @@ class DefaultController extends Controller
 
         //TODO tema de sortby
 
+        $this->render_vars['all_files'] = array();
+        if (isset($this->render_vars['files'])) {
+            foreach($this->render_vars['files'] as $file) {
+                $this->render_vars['all_files'][] = $this->render_vars['params']['upload_path_after_document_root'] . $file->getBaseName();
+            }
+        }
+
         $this->render_vars['params'] = $this->render_vars['params'];
         $this->render_vars['url_safe_encoder'] = $this->url_safe_encoder;
         $this->render_vars['url_safe_encoded_params'] = $url_safe_encoded_params;

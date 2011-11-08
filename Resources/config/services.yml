@@ -16,7 +16,7 @@ parameters:
             upload_path_after_document_root: /uploads/files/
             max_number_of_files: 1
             allowed_extensions: ~
-        single_any_file:
+        single_pdf:
             upload_path_after_document_root: /uploads/pdf/
             max_number_of_files: 1
             allowed_extensions: pdf

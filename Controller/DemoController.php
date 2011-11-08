@@ -25,9 +25,9 @@ class DemoController extends Controller
             //'load_options' => 'single_pdf',
             //'max_number_of_files' => 10,
             //'allowed_extensions' => 'jpeg',
-            'on_select_callback_function' => //will receive two params: file_name, upload_path_after_root_dir, input_container
+            'on_select_callback_function' => //will receive the input_value parameter
                 "
-                    $('#input_name').val(upload_path_after_document_root + file_name);
+                    $('#input_name').val(input_value);
                     //$('#mmf-fm-dialog').dialog('close');
                 ",
             );
