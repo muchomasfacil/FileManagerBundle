@@ -324,10 +324,13 @@ class DefaultController extends Controller
         //die(print_r($this->render_vars['params']));
         $in = $this->document_root . $this->render_vars['params']['upload_path_after_document_root'];
 
+        if (!$this->render_vars['params']['allowed_extensions']) {
+            $this->render_vars['params']['allowed_extensions'] = '*';
+        }
         $names = $this->render_vars['params']['allowed_extensions'];
         $names = str_replace("'", '', $names);
         $names = explode(',', $names);
-
+        
         array_walk($names, function(&$val) {$val = '*.'.trim($val);});
         $finder = new Finder();
         $finder->files()->depth('==0');

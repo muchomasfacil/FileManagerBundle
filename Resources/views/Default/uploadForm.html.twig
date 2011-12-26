@@ -26,9 +26,11 @@ $(document).ready(function(){
         multipart: true,
         multipart_params: { 'url_safe_encoded_params': '{{ url_safe_encoded_params }}'},
 		// Specify what files to browse for
+{% if params['allowed_extensions'] is not empty %}		
 		filters : [
 			{title : "{{ 'Allowed file extensions' | trans({}, (bundle_name | lower)) }}", extensions : "{{ params['allowed_extensions'] }}"},
 		],
+{% endif %}		
 		init: {
             UploadComplete: function(up, files) {
                 mmf_fm_load('#mmf-fm-list-tab','{{ path( 'mmf_fm_list', { 'url_safe_encoded_params': url_safe_encoded_params }) }}');
